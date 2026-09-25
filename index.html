@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#f5f2e9"/>
+<meta name="description" content="オンライン麻雀の対局動画を送ると、AIがあなたの打ち方をやさしく振り返り。良かった点・見直したい点・次の対局のテーマをお届けします。初回1半荘無料のβテスト。"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>その一打に、「なるほど」を。｜AI麻雀コーチ</title>
+<!-- External fonts are optional. Offline/system fallbacks are defined below. No font files are bundled. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --paper: #f5f2e9;
+  --white: #fffdf7;
+  --ink: #253b32;
+  --green: #244b3d;
+  --green-deep: #1b3a30;
+  --red: #b74630;
+  --muted: #657169;
+  --line: #d4d4c6;
+  --serif: "Noto Serif JP", "Noto Serif CJK JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --sans: "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --mono: "Courier New", monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 95px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.95; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; }
+button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; }
+button, select, summary { cursor: pointer; }
+button { border-radius: 0; }
+img, svg { display: block; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--red); outline-offset: 6px; }
+input:focus, select:focus { outline: 2px solid var(--green); outline-offset: 3px; }
+::selection { background: #d9e2d2; color: var(--green-deep); }
+[hidden] { display: none !important; }
+h1, h2, h3, p { margin: 0; }
+.container { width: min(1216px, calc(100% - 96px)); margin-inline: auto; }
+.serif { font-family: var(--serif); font-weight: 500; }
+.label { font-size: 11px; letter-spacing: .13em; font-weight: 500; }
+.en { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; line-height: 1.5; }
+.red { color: var(--red); }
+.small { font-size: 12px; color: var(--muted); }
+.skip { position: fixed; top: -100px; left: 20px; z-index: 100; padding: 10px 20px; background: var(--white); }
+.skip:focus { top: 10px; }
+.icon-arrow { width: 20px; height: 20px; flex: 0 0 auto; }
+.topbar { position: relative; z-index: 20; }
+.header-inner { min-height: 90px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 24px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; white-space: nowrap; }
+.brand-symbol { width: 29px; height: 39px; }
+.brand-name { font-family: var(--serif); font-size: 19px; font-weight: 600; letter-spacing: .06em; }
+.brand-beta { font-family: var(--mono); color: var(--red); font-size: 11px; padding-left: 2px; align-self: center; }
+.nav { display: flex; align-items: center; gap: 32px; font-size: 12px; }
+.nav-link { position: relative; }
+.nav-link::after { content: ""; position: absolute; height: 1px; width: 100%; background: currentColor; left: 0; bottom: -5px; transform: scaleX(0); transform-origin: left; transition: transform .2s; }
+.nav-link:hover::after { transform: scaleX(1); }
+.header-cta { border: 1px solid var(--green); display: inline-flex; align-items: center; gap: 20px; padding: 9px 18px; transition: background .2s, color .2s; }
+.header-cta:hover { background: var(--green); color: var(--white); }
+.hero { padding-top: 58px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr); align-items: center; gap: 58px; }
+.hero-copy { padding-bottom: 5px; }
+.hero-kicker { display: flex; gap: 12px; align-items: center; font-size: 11px; letter-spacing: .11em; margin-bottom: 29px; }
+.hero-kicker::before { content: ""; width: 7px; height: 7px; background: var(--red); border-radius: 50%; }
+h1 { font-family: var(--serif); font-size: clamp(43px, 4.75vw, 66px); font-weight: 500; line-height: 1.64; letter-spacing: .015em; margin: 0 0 24px; }
+h1 .headline-line { display: block; white-space: nowrap; }
+h1 .headline-line:last-child { padding-left: 0; }
+.hero-description { font-size: 15px; line-height: 2.15; letter-spacing: .045em; margin-bottom: 31px; color: #4e5f55; }
+.hero-description strong { font-weight: 500; color: var(--ink); }
+.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; min-height: 62px; padding: 14px 25px; background: var(--green); border: 1px solid var(--green); color: var(--white); font-weight: 500; font-size: 14px; letter-spacing: .04em; transition: background .2s, transform .2s; cursor: pointer; }
+.button:hover { background: var(--green-deep); transform: translateY(-2px); }
+.button .icon-arrow { transition: transform .2s; }
+.button:hover .icon-arrow { transform: translateX(4px); }
+.button:disabled { opacity: .55; cursor: wait; transform: none; }
+.hero-micro { margin-top: 12px; font-size: 11px; color: var(--muted); letter-spacing: .05em; }
+.hero-secondary { display: inline-flex; align-items: center; gap: 20px; font-size: 12px; margin-top: 24px; border-bottom: 1px solid #9ba99b; padding-bottom: 4px; }
+.hero-secondary svg { width: 14px; height: 14px; }
+.hero-visual { margin: 0; position: relative; }
+.felt { position: relative; background: var(--green); aspect-ratio: 1 / 1.11; overflow: hidden; isolation: isolate; color: var(--white); }
+.felt::before { content: ""; position: absolute; inset: 0; opacity: .14; pointer-events: none; z-index: 8; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23ffffff' filter='url(%23n)' opacity='.45' d='M0 0h160v160H0z'/%3E%3C/svg%3E"); }
+.felt-line { position: absolute; inset: 18px; border: 1px solid rgba(232,235,213,.25); }
+.felt-line::before, .felt-line::after { content: ""; position: absolute; width: 7px; height: 7px; border: 1px solid #acb6a0; background: var(--green); }
+.felt-line::before { left: -4px; top: -4px; }
+.felt-line::after { right: -4px; bottom: -4px; }
+.felt-top { position: absolute; left: 38px; right: 38px; top: 39px; display: flex; justify-content: space-between; align-items: start; }
+.felt-top p { font-family: var(--serif); font-size: clamp(19px, 1.7vw, 24px); letter-spacing: .12em; line-height: 1.8; }
+.felt-top p span { display: block; }
+.lesson-seal { border: 1px solid #b4bea9; font-family: var(--serif); font-size: 14px; line-height: 1.5; padding: 6px 8px; color: #e3e8d8; }
+.lesson-seal span { display: block; }
+.table-grid { position: absolute; inset: 19% 14% 27%; border: 1px solid rgba(236,240,223,.07); border-radius: 50%; transform: rotate(-14deg); }
+.table-grid::after { content: ""; position: absolute; width: 100%; left: 0; top: 50%; border-top: 1px solid rgba(236,240,223,.10); }
+.table-grid::before { content: ""; position: absolute; height: 100%; top: 0; left: 50%; border-left: 1px solid rgba(236,240,223,.10); }
+.tile-line { position: absolute; left: 11%; right: 10%; top: 29.5%; display: flex; gap: 11px; justify-content: center; transform: rotate(-9deg); }
+.mahjong-tile { position: relative; display: block; width: 79px; aspect-ratio: .69; background: #f9f4e4; border: 1px solid #d2cdb9; border-radius: 7px; box-shadow: 1px 7px 0 #c8c4ab, 2px 12px 0 #adc2a7, 4px 18px 20px #122d2ba6; }
+.mahjong-tile svg { width: 100%; height: 100%; padding: 10px 7px 8px; }
+.mahjong-tile::after { content: ""; position: absolute; inset: 3px; border: 1px solid #fffdf3; border-radius: 4px; pointer-events: none; }
+.tile-line .mahjong-tile:nth-child(2) { transform: translateY(-9px) rotate(3deg); }
+.tile-line .mahjong-tile:nth-child(3) { transform: translateY(-2px) rotate(6deg); }
+.tile-line .mahjong-tile:nth-child(4) { transform: translateY(10px) rotate(13deg); }
+.tile-line .mahjong-tile:nth-child(4)::before { content: ""; position: absolute; border: 2px solid #e9a084; inset: -10px -6px -13px -7px; border-radius: 50%; transform: rotate(-16deg); }
+.hand-arrow { position: absolute; width: 26%; height: 19%; right: 8%; top: 48%; color: #efbd9c; transform: rotate(4deg); }
+.note-paper { position: absolute; top: 61%; left: 10%; width: 73%; background: var(--paper); color: var(--ink); padding: 20px 24px 22px; transform: rotate(-3deg); box-shadow: 2px 6px 20px #102d2940; }
+.note-paper::before { content: ""; position: absolute; top: -12px; left: 42%; width: 71px; height: 26px; transform: rotate(5deg); background: #dacfa9c7; }
+.note-label { font-size: 9px; letter-spacing: .13em; color: var(--red); margin-bottom: 9px; }
+.note-title { font-family: var(--serif); font-size: clamp(17px, 1.65vw, 24px); line-height: 1.8; letter-spacing: .035em; }
+.note-title span { box-shadow: 0 1px 0 var(--red); padding-bottom: 3px; }
+.felt-bottom { position: absolute; bottom: 34px; left: 38px; right: 38px; display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .12em; color: #bacbb6; }
+.hero-caption { display: flex; justify-content: space-between; gap: 12px; font-size: 9px; letter-spacing: .035em; padding-top: 11px; color: var(--muted); }
+.hero-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 19px 0; margin-top: 56px; gap: 20px; }
+.hero-bottom-label { font-size: 11px; letter-spacing: .08em; }
+.hero-bottom-values { display: flex; gap: 32px; }
+.hero-bottom-values span { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; }
+.hero-bottom-values svg { width: 17px; height: 17px; stroke-width: 1.3; }
+.section-index { display: inline-flex; align-items: center; gap: 16px; font-size: 11px; letter-spacing: .13em; }
+.section-index .en { color: var(--red); font-size: 12px; }
+.section-heading { font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 3vw, 41px); line-height: 1.8; letter-spacing: .03em; }
+.intro { padding: 89px 0 82px; }
+.intro-top { display: grid; grid-template-columns: .43fr 1fr; gap: 44px; align-items: start; }
+.intro-top .section-index { padding-top: 17px; }
+.intro-text p { font-size: 14px; line-height: 2.05; color: var(--muted); margin-top: 18px; max-width: 630px; }
+.editorial-values { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 45px; padding-left: 0; }
+.editorial-value { display: grid; grid-template-columns: 36px 1fr; gap: 13px; padding-top: 22px; border-top: 1px solid var(--line); }
+.editorial-number { font-family: var(--serif); color: var(--red); font-size: 24px; line-height: 1.5; }
+.editorial-value h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; margin-bottom: 9px; }
+.editorial-value p { font-size: 12px; line-height: 1.9; color: var(--muted); }
+.sample-section { background: #e9ede2; padding: 82px 0 77px; border-top: 1px solid #dce2d4; border-bottom: 1px solid #dce2d4; }
+.sample-grid { display: grid; grid-template-columns: .72fr 1fr; gap: 94px; align-items: center; }
+.sample-intro .section-heading { margin-top: 20px; }
+.sample-intro > p { margin-top: 21px; font-size: 13px; color: var(--muted); line-height: 2; max-width: 355px; }
+.sample-tabs { margin-top: 31px; display: flex; flex-direction: column; }
+.sample-tab { background: none; text-align: left; width: 100%; padding: 16px 0; border: 0; border-bottom: 1px solid #cad2c4; display: flex; align-items: center; gap: 20px; font-size: 13px; }
+.sample-tab:first-child { border-top: 1px solid #cad2c4; }
+.sample-tab .en { font-size: 10px; color: var(--muted); }
+.sample-tab svg { width: 17px; height: 17px; margin-left: auto; opacity: 0; transition: opacity .2s, transform .2s; }
+.sample-tab[aria-selected="true"] { color: var(--red); font-weight: 500; }
+.sample-tab[aria-selected="true"] .en { color: var(--red); }
+.sample-tab[aria-selected="true"] svg { opacity: 1; }
+.sample-tab:hover svg { opacity: 1; transform: translateX(3px); }
+.sample-note { margin-top: 18px !important; font-size: 10px !important; }
+.review-sheet { background: var(--white); padding: 28px 36px 30px; box-shadow: 0 2px 0 #d4d8ca, 0 10px 25px #314a2910; position: relative; min-height: 568px; transform: rotate(1deg); }
+.review-sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 25px; border-left: 1px solid #c66b5730; pointer-events: none; }
+.sheet-top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 15px; gap: 15px; }
+.sheet-brand { font-family: var(--serif); font-size: 16px; letter-spacing: .08em; }
+.sample-stamp { font-size: 9px; border: 1px solid #939d8e; padding: 2px 7px; letter-spacing: .1em; color: var(--muted); transform: rotate(-5deg); }
+.sheet-meta { display: flex; justify-content: space-between; padding-top: 16px; color: var(--muted); font-size: 9px; letter-spacing: .06em; }
+.mini-hand { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 29px auto 33px; position: relative; max-width: 330px; min-height: 98px; }
+.mini-hand .mahjong-tile { width: 54px; border-radius: 4px; box-shadow: 0 3px 0 #cdcbb5, 0 6px 0 #a6b89f, 0 8px 9px #33412e16; }
+.mini-hand .mahjong-tile svg { padding: 7px 5px; }
+.mini-hand .mahjong-tile:nth-child(4) { margin-left: 15px; }
+.mini-hand .mahjong-tile:nth-child(4)::before { content: ""; position: absolute; border: 1.5px solid var(--red); inset: -7px -7px -13px -7px; border-radius: 50%; transform: rotate(-9deg); }
+.sheet-content { position: relative; }
+.sheet-topic { font-size: 10px; letter-spacing: .09em; color: var(--red); margin-bottom: 12px; }
+.sheet-content h3 { font-family: var(--serif); font-weight: 500; font-size: 27px; line-height: 1.85; letter-spacing: .015em; }
+.sheet-body { color: #5c675e; font-size: 12px; line-height: 2.1; margin-top: 18px; min-height: 78px; }
+.sheet-takeaway { padding: 12px 0 2px; border-top: 1px solid var(--line); margin-top: 22px; font-size: 11px; display: flex; gap: 10px; align-items: start; }
+.sheet-takeaway svg { color: var(--red); width: 16px; height: 16px; margin-top: 3px; flex: 0 0 auto; }
+.sample-caption { font-size: 10px; color: var(--muted); text-align: right; margin-top: 15px; }
+.how { background: var(--green-deep); color: var(--paper); padding: 72px 0 62px; }
+.how-top { display: flex; justify-content: space-between; gap: 40px; align-items: end; }
+.how .section-index .en { color: #d99d82; }
+.how .section-heading { margin-top: 17px; font-size: clamp(30px, 3vw, 40px); }
+.how-note { font-size: 12px; line-height: 2.1; color: #b9c8b6; max-width: 305px; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 47px; margin-top: 41px; }
+.step { border-top: 1px solid #78907f66; padding-top: 23px; }
+.step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
+.step-num { font-family: var(--serif); font-size: 34px; color: #a9beaa; line-height: 1.3; }
+.step-icon { width: 32px; height: 32px; color: #d3decc; }
+.step h3 { font-family: var(--serif); font-size: 20px; letter-spacing: .035em; font-weight: 500; margin-bottom: 11px; }
+.step p { color: #b9c8b6; font-size: 12px; line-height: 2; }
+.how-foot { border-top: 1px solid #78907f66; margin-top: 34px; padding-top: 17px; font-size: 10px; color: #b9c8b6; }
+.beta { padding: 95px 0 93px; }
+.beta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 110px; align-items: start; }
+.beta-intro .section-heading { font-size: clamp(32px, 3.3vw, 44px); margin-top: 20px; line-height: 1.85; }
+.beta-intro > p { font-size: 13px; line-height: 2.1; color: var(--muted); margin-top: 20px; max-width: 400px; }
+.price { display: flex; align-items: baseline; gap: 16px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 12px 0 16px; margin-top: 34px; max-width: 400px; }
+.price-label { font-size: 12px; }
+.price-value { font-family: var(--serif); font-size: 56px; line-height: 1.35; margin-left: auto; }
+.price-yen { font-size: 15px; padding-left: 6px; }
+.beta-detail { font-size: 10px !important; line-height: 1.9 !important; margin-top: 13px !important; }
+.beta-form { border-top: 2px solid var(--green); padding-top: 21px; }
+.form-header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 23px; }
+.form-header h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+.form-header .en { color: var(--muted); font-size: 9px; }
+.field { margin-bottom: 22px; }
+.field label { display: flex; align-items: center; gap: 11px; font-size: 12px; font-weight: 500; margin-bottom: 9px; }
+.field-status { color: var(--red); font-size: 9px; font-weight: 400; }
+.field-status.optional { color: var(--muted); }
+.field input, .field select { width: 100%; border: 1px solid var(--line); border-radius: 0; background: var(--white); color: var(--ink); padding: 12px 15px; min-height: 49px; font-size: 13px; }
+.field input::placeholder { color: #8a9188; }
+.field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m5 8 5 5 5-5' stroke='%23253b32' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"); background-size: 19px; background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
+.form-consent { display: flex; align-items: start; gap: 11px; margin: 7px 0 19px; font-size: 11px; line-height: 1.9; color: var(--muted); }
+.form-consent input { width: 17px; height: 17px; margin: 3px 0 0; flex: 0 0 auto; accent-color: var(--green); }
+.text-link { text-decoration: underline; text-underline-offset: 3px; color: var(--ink); }
+.beta-form .button { width: 100%; }
+.form-after { font-size: 10px; color: var(--muted); margin-top: 12px; text-align: center; }
+.preview-note { font-size: 10px; color: #796c52; line-height: 1.8; margin-top: 16px; border-left: 2px solid #b3a37d; padding-left: 10px; }
+.form-status { margin-top: 16px; font-size: 12px; color: var(--red); background: #efe6d8; padding: 13px 16px; }
+.form-status.is-success { color: var(--green); background: #e9ede2; }
+.honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.faq-section { padding: 0 0 88px; }
+.faq-grid { display: grid; grid-template-columns: .43fr 1fr; gap: 44px; border-top: 1px solid var(--line); padding-top: 54px; }
+.faq-heading { font-family: var(--serif); font-size: 28px; font-weight: 500; margin-top: 18px; }
+.faq-list { border-top: 1px solid var(--line); }
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-item summary { list-style: none; display: flex; align-items: baseline; gap: 20px; font-size: 13px; padding: 20px 0; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-q { font-family: var(--serif); color: var(--red); font-size: 17px; line-height: 1; }
+.faq-item summary::after { content: "+"; margin-left: auto; color: var(--muted); font-size: 18px; line-height: 1; font-weight: 300; }
+.faq-item[open] summary::after { content: "−"; }
+.faq-item p { padding: 0 32px 22px 35px; color: var(--muted); font-size: 12px; line-height: 2; }
+.footer { border-top: 1px solid var(--line); padding: 35px 0 24px; }
+.footer-top { display: flex; justify-content: space-between; gap: 40px; align-items: center; }
+.footer-message { margin-top: 8px; font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.footer-links { display: flex; gap: 25px; font-size: 10px; color: var(--muted); }
+.footer-bottom { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 29px; }
+.footer-bottom p { font-size: 9px; color: var(--muted); max-width: 800px; line-height: 1.8; }
+.footer-bottom .en { font-size: 9px; white-space: nowrap; }
+.mobile-cta { display: none; }
+dialog { padding: 30px; width: min(480px, calc(100vw - 40px)); border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+dialog::backdrop { background: #172b2380; }
+dialog h2 { font-family: var(--serif); font-size: 21px; font-weight: 500; margin-bottom: 15px; }
+dialog p { font-size: 13px; color: var(--muted); line-height: 2; }
+.dialog-close { display: block; margin: 25px 0 0 auto; background: var(--green); border: 0; color: var(--white); padding: 10px 22px; font-size: 12px; }
+.noscript-note { background: #efe6d8; padding: 12px 24px; font-size: 12px; }
+@media (min-width: 1500px) { .hero-grid { gap: 68px; } }
+@media (max-width: 1120px) {
+  .container { width: calc(100% - 64px); }
+  .hero-grid { gap: 36px; }
+  h1 { font-size: clamp(41px, 4.65vw, 55px); }
+  .hero-description { font-size: 13px; }
+  .hero-kicker { font-size: 10px; margin-bottom: 22px; }
+  .felt-top { left: 29px; right: 29px; top: 29px; }
+  .felt-bottom { bottom: 29px; left: 29px; right: 29px; font-size: 8px; }
+  .tile-line { gap: 9px; }
+  .mahjong-tile { width: 67px; }
+  .note-paper { padding: 17px 21px; }
+  .note-label { font-size: 8px; }
+  .sample-grid { gap: 54px; }
+  .review-sheet { padding: 26px 31px 28px; }
+  .sheet-content h3 { font-size: 24px; }
+  .beta-grid { gap: 67px; }
+}
+@media (max-width: 860px) {
+  .header-inner { min-height: 79px; }
+  .nav { gap: 20px; }
+  .nav-link { display: none; }
+  .hero { padding-top: 38px; }
+  .hero-grid { gap: 26px; grid-template-columns: 1.08fr 1fr; }
+  h1 { font-size: 39px; line-height: 1.65; margin-bottom: 20px; }
+  .hero-description { font-size: 12px; margin-bottom: 24px; }
+  .hero-kicker { font-size: 9px; letter-spacing: .02em; gap: 7px; }
+  .hero .button { min-height: 55px; padding: 12px 17px; font-size: 12px; gap: 22px; }
+  .hero-micro { font-size: 9px; }
+  .hero-secondary { margin-top: 17px; font-size: 11px; }
+  .felt { aspect-ratio: .85; }
+  .felt-top p { font-size: 18px; }
+  .felt-top { top: 30px; left: 27px; right: 27px; }
+  .lesson-seal { font-size: 10px; padding: 5px 6px; }
+  .tile-line { left: 10%; right: 10%; gap: 7px; top: 30%; }
+  .mahjong-tile { width: 50px; border-radius: 5px; box-shadow: 1px 5px 0 #c8c4ab, 2px 9px 0 #adc2a7, 3px 15px 16px #122d2b88; }
+  .note-paper { left: 10%; width: 78%; padding: 16px 17px; top: 61%; }
+  .note-title { font-size: 17px; }
+  .felt-bottom { bottom: 26px; left: 27px; right: 27px; }
+  .felt-bottom span:first-child { max-width: 130px; }
+  .felt-bottom span:last-child { display: none; }
+  .hero-caption { font-size: 8px; }
+  .hero-caption span:last-child { display: none; }
+  .hero-bottom { margin-top: 40px; }
+  .hero-bottom-label { display: none; }
+  .hero-bottom-values { width: 100%; justify-content: center; gap: 30px; }
+  .hero-bottom-values span { font-size: 11px; }
+  .intro { padding: 67px 0; }
+  .intro-top { grid-template-columns: .35fr 1fr; gap: 26px; }
+  .section-heading { font-size: 30px; }
+  .intro-text p { font-size: 12px; }
+  .editorial-values { gap: 22px; margin-top: 36px; }
+  .editorial-value { grid-template-columns: 26px 1fr; gap: 7px; }
+  .editorial-value h3 { font-size: 17px; }
+  .editorial-value p { font-size: 11px; }
+  .editorial-number { font-size: 20px; }
+  .sample-section { padding: 67px 0 60px; }
+  .sample-grid { grid-template-columns: .75fr 1fr; gap: 32px; }
+  .sample-intro .section-heading { font-size: 27px; }
+  .sample-intro > p { font-size: 12px; }
+  .sample-tab { font-size: 11px; gap: 10px; padding: 14px 0; }
+  .review-sheet { padding: 20px 24px 24px; min-height: 538px; }
+  .review-sheet::before { left: 15px; }
+  .sheet-brand { font-size: 14px; }
+  .mini-hand { gap: 6px; margin: 24px 0 28px; }
+  .mini-hand .mahjong-tile { width: 44px; }
+  .mini-hand .mahjong-tile:nth-child(4) { margin-left: 5px; }
+  .sheet-content h3 { font-size: 22px; }
+  .sheet-body { font-size: 11px; }
+  .sheet-takeaway { font-size: 10px; }
+  .how { padding: 60px 0 50px; }
+  .how-note { max-width: 235px; font-size: 11px; }
+  .steps { gap: 30px; }
+  .step h3 { font-size: 17px; }
+  .step p { font-size: 11px; }
+  .beta { padding: 65px 0; }
+  .beta-grid { gap: 46px; }
+  .beta-intro .section-heading { font-size: 32px; }
+  .beta-intro > p { font-size: 12px; }
+  .faq-grid { grid-template-columns: .35fr 1fr; gap: 26px; padding-top: 43px; }
+  .faq-heading { font-size: 24px; }
+  .faq-item summary { font-size: 12px; gap: 13px; }
+}
+@media (max-width: 680px) {
+  html { scroll-padding-top: 20px; }
+  .container { width: calc(100% - 44px); }
+  .header-inner { min-height: 72px; gap: 12px; }
+  .brand { gap: 9px; }
+  .brand-symbol { width: 22px; height: 31px; }
+  .brand-name { font-size: 16px; letter-spacing: .025em; }
+  .brand-beta { font-size: 9px; padding-left: 0; }
+  .header-cta { padding: 7px 10px; font-size: 10px; gap: 12px; }
+  .header-cta svg { width: 14px; height: 14px; }
+  .hero { padding-top: 37px; }
+  .hero-grid { display: flex; flex-direction: column; gap: 35px; align-items: stretch; }
+  .hero-copy { padding: 0 3px; }
+  .hero-kicker { font-size: 10px; margin-bottom: 18px; letter-spacing: .06em; }
+  h1 { font-size: clamp(38px, 8.6vw, 53px); line-height: 1.65; letter-spacing: .015em; margin-bottom: 17px; }
+  .hero-description { font-size: 13px; line-height: 2.05; margin-bottom: 25px; letter-spacing: .015em; }
+  .hero .button { padding: 14px 23px; min-height: 56px; font-size: 13px; gap: 34px; width: 100%; }
+  .hero-micro { font-size: 10px; text-align: center; margin-top: 10px; }
+  .hero-secondary { font-size: 11px; margin-top: 19px; }
+  .felt { aspect-ratio: 1; }
+  .felt-line { inset: 14px; }
+  .felt-top { top: 27px; left: 27px; right: 27px; }
+  .felt-top p { font-size: clamp(20px, 5vw, 28px); letter-spacing: .09em; }
+  .lesson-seal { font-size: 12px; }
+  .tile-line { left: 12%; right: 12%; top: 30.5%; gap: 9px; }
+  .mahjong-tile { width: clamp(52px, 15.65vw, 85px); border-radius: 5px; }
+  .tile-line .mahjong-tile svg { padding: 7px 5px; }
+  .note-paper { left: 9%; width: 76%; top: 62%; padding: 14px 21px 16px; }
+  .note-label { font-size: 8px; margin-bottom: 7px; }
+  .note-title { font-size: clamp(18px, 4.8vw, 26px); line-height: 1.75; }
+  .note-paper::before { width: 53px; height: 20px; top: -9px; }
+  .hand-arrow { top: 50%; right: 7%; }
+  .felt-bottom { display: none; }
+  .hero-caption { font-size: 8px; padding-top: 9px; }
+  .hero-caption span:last-child { display: inline; }
+  .hero-bottom { margin-top: 28px; padding: 15px 0; }
+  .hero-bottom-values { justify-content: space-between; gap: 7px; }
+  .hero-bottom-values span { font-size: 10px; gap: 6px; }
+  .hero-bottom-values svg { width: 14px; height: 14px; }
+  .intro { padding: 51px 0 52px; }
+  .intro-top { display: block; }
+  .intro-top .section-index { padding-top: 0; }
+  .section-index { font-size: 10px; gap: 12px; }
+  .section-index .en { font-size: 11px; }
+  .intro-text { margin-top: 19px; }
+  .section-heading { font-size: clamp(25px, 6.3vw, 33px); line-height: 1.85; letter-spacing: .015em; }
+  .intro-text p { font-size: 12px; margin-top: 16px; line-height: 2.05; }
+  .editorial-values { display: block; margin-top: 26px; }
+  .editorial-value { padding-top: 19px; padding-bottom: 18px; grid-template-columns: 35px 1fr; gap: 15px; }
+  .editorial-value:last-child { padding-bottom: 0; }
+  .editorial-number { font-size: 23px; }
+  .editorial-value h3 { font-size: 18px; margin-bottom: 5px; }
+  .editorial-value p { font-size: 12px; }
+  .sample-section { padding: 48px 0 40px; }
+  .sample-grid { display: block; }
+  .sample-intro .section-heading { margin-top: 17px; font-size: 28px; }
+  .sample-intro > p { margin-top: 16px; max-width: none; font-size: 12px; }
+  .sample-tabs { flex-direction: row; margin-top: 25px; }
+  .sample-tab { flex-direction: column; justify-content: start; align-items: start; gap: 3px; padding: 10px 7px 12px 0; font-size: 11px; border-top: 1px solid #cad2c4; line-height: 1.8; }
+  .sample-tab[aria-selected="true"] { border-bottom: 2px solid var(--red); }
+  .sample-tab .en { font-size: 9px; }
+  .sample-tab svg { display: none; }
+  .sample-note { margin-top: 10px !important; font-size: 9px !important; }
+  .sample-notebook { margin-top: 25px; }
+  .review-sheet { transform: rotate(.65deg); min-height: 527px; padding: 22px 25px 25px; }
+  .review-sheet::before { left: 15px; }
+  .sheet-brand { font-size: 15px; }
+  .sheet-meta { font-size: 9px; }
+  .mini-hand { gap: 9px; margin: 28px auto 29px; min-height: 89px; }
+  .mini-hand .mahjong-tile { width: 49px; }
+  .mini-hand .mahjong-tile:nth-child(4) { margin-left: 10px; }
+  .sheet-content h3 { font-size: 24px; line-height: 1.85; }
+  .sheet-topic { font-size: 10px; }
+  .sheet-body { font-size: 12px; min-height: 100px; margin-top: 15px; }
+  .sheet-takeaway { font-size: 10px; margin-top: 16px; }
+  .sample-caption { font-size: 9px; margin-top: 12px; }
+  .how { padding: 49px 0 35px; }
+  .how-top { display: block; }
+  .how .section-heading { font-size: 28px; margin-top: 17px; }
+  .how-note { margin-top: 17px; max-width: none; font-size: 12px; }
+  .steps { display: block; margin-top: 26px; }
+  .step { display: grid; grid-template-columns: 42px 1fr; gap: 18px; padding: 22px 0; }
+  .step-top { flex-direction: column; justify-content: start; align-items: start; gap: 21px; margin: 0; }
+  .step-num { font-size: 26px; }
+  .step-icon { width: 25px; height: 25px; }
+  .step h3 { font-size: 18px; margin-top: 0; margin-bottom: 8px; }
+  .step p { font-size: 12px; }
+  .how-foot { margin-top: 1px; padding-top: 16px; font-size: 9px; }
+  .beta { padding: 49px 0 51px; }
+  .beta-grid { display: block; }
+  .beta-intro .section-heading { font-size: 31px; margin-top: 18px; }
+  .beta-intro > p { margin-top: 16px; max-width: none; font-size: 12px; }
+  .price { margin-top: 25px; max-width: none; padding: 9px 0 13px; }
+  .price-value { font-size: 47px; }
+  .beta-detail { margin-top: 11px !important; }
+  .beta-form { margin-top: 34px; padding-top: 20px; }
+  .form-header { margin-bottom: 20px; }
+  .field { margin-bottom: 20px; }
+  .field input, .field select { font-size: 16px; min-height: 50px; }
+  .form-header h3 { font-size: 20px; }
+  .form-consent { font-size: 11px; }
+  .beta-form .button { font-size: 13px; min-height: 58px; }
+  .faq-section { padding: 0 0 48px; }
+  .faq-grid { display: block; padding-top: 37px; }
+  .faq-heading { font-size: 25px; margin-top: 13px; margin-bottom: 23px; }
+  .faq-item summary { font-size: 12px; gap: 13px; padding: 19px 0; }
+  .faq-item p { font-size: 12px; padding-left: 28px; padding-right: 15px; }
+  .footer { padding: 28px 0 95px; }
+  .footer-top { display: block; }
+  .footer-message { font-size: 10px; margin-top: 7px; }
+  .footer-links { margin-top: 22px; gap: 20px; font-size: 10px; flex-wrap: wrap; }
+  .footer-bottom { display: block; margin-top: 22px; padding-top: 17px; }
+  .footer-bottom .en { display: block; margin-top: 14px; }
+  .footer-bottom p { font-size: 9px; }
+  .mobile-cta { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; padding: 10px 16px max(10px, env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); transform: translateY(120%); transition: transform .25s; align-items: center; gap: 15px; }
+  .mobile-cta.is-visible { transform: translateY(0); }
+  .mobile-cta > span { font-size: 10px; white-space: nowrap; line-height: 1.7; }
+  .mobile-cta > span strong { font-weight: 500; color: var(--red); }
+  .mobile-cta .button { min-height: 44px; padding: 8px 15px; font-size: 12px; flex: 1; gap: 12px; }
+}
+@media (max-width: 360px) {
+  .container { width: calc(100% - 36px); }
+  .brand-name { font-size: 14px; }
+  .brand-symbol { width: 20px; }
+  .header-cta { font-size: 9px; gap: 6px; padding: 6px 8px; }
+  h1 { font-size: 35px; }
+  .hero-kicker { font-size: 9px; }
+  .hero-description { font-size: 12px; }
+  .hero-bottom-values span { font-size: 9px; gap: 4px; }
+  .felt-top p { font-size: 17px; }
+  .mahjong-tile { width: 52px; }
+  .note-title { font-size: 16px; }
+  .note-paper { padding: 12px 16px 14px; top: 60%; }
+  .sheet-content h3 { font-size: 21px; }
+  .sample-tab { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .nav, .mobile-cta, .beta-form, .preview-note { display: none !important; }
+  body { font-size: 12px; }
+  .container { width: 92%; }
+  section { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">本文へ移動</a>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+<defs>
+<g id="pip"><circle r="7.3" fill="none" stroke="currentColor" stroke-width="2.3"/><circle r="3.4" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="1.1" fill="currentColor"/></g>
+<symbol id="p2" viewBox="0 0 60 90"><g color="#254b42"><use href="#pip" x="30" y="23"/><use href="#pip" x="30" y="67"/></g></symbol>
+<symbol id="p3" viewBox="0 0 60 90"><g color="#254b42"><use href="#pip" x="17" y="20"/><use href="#pip" x="43" y="70"/></g><g color="#b74630"><use href="#pip" x="30" y="45"/></g></symbol>
+<symbol id="p4" viewBox="0 0 60 90"><g color="#254b42"><use href="#pip" x="17" y="25"/><use href="#pip" x="43" y="25"/><use href="#pip" x="17" y="65"/><use href="#pip" x="43" y="65"/></g></symbol>
+<symbol id="p5" viewBox="0 0 60 90"><g color="#254b42"><use href="#pip" x="16" y="20"/><use href="#pip" x="44" y="20"/><use href="#pip" x="16" y="70"/><use href="#pip" x="44" y="70"/></g><g color="#b74630"><use href="#pip" x="30" y="45"/></g></symbol>
+<symbol id="s8" viewBox="0 0 60 90"><g stroke="#27513c" fill="none" stroke-linecap="round" stroke-width="3.6">
+<path d="M14 13v16m16-16v16m16-16v16M14 60v16m16-16v16m16-16v16M20 37l-6 16m26-16 6 16"/>
+</g><g stroke="#f9f4e4" stroke-width="1"><path d="M10 20h8m8 0h8m8 0h8M10 67h8m8 0h8m8 0h8M14 46l7 2m18 0 7-2"/></g></symbol>
+</defs></svg>
+<header class="topbar">
+  <div class="container header-inner">
+    <a href="#top" aria-label="AI麻雀コーチ トップ"><span class="brand"><svg class="brand-symbol" viewBox="0 0 32 44" fill="none" aria-hidden="true"><rect x="1" y="1" width="29" height="38" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 35h28v5a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="currentColor"/><path d="M8 23h15" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="13" r="3" fill="#b74630"/></svg><span class="brand-name">AI麻雀コーチ</span><span class="brand-beta">β</span></span></a>
+    <nav class="nav" aria-label="メインナビゲーション">
+      <a class="nav-link" href="#sample">添削のイメージ</a>
+      <a class="nav-link" href="#how">使い方</a>
+      <a class="header-cta" href="#beta" data-cta="header">無料β版を試す <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></a>
+    </nav>
+  </div>
+</header>
+<noscript><div class="noscript-note">添削サンプルの切替と申込フォームにはJavaScriptが必要です。このページはデザインプレビューです。</div></noscript>
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="hero-kicker">オンライン麻雀を楽しむ、初・中級者へ。</div>
+          <h1 id="hero-title"><span class="headline-line" id="headline-first">その一打に、</span><span class="headline-line" id="headline-second">「なるほど」を。</span></h1>
+          <p class="hero-description" id="hero-description">対局動画を送ると、AIがあなたの打ち方を振り返り。<br>良かったところも、もったいなかったところも。<br><strong>次に直すことを、ひとつだけ。</strong></p>
+          <a class="button" id="hero-cta" href="#beta" data-cta="hero">無料で、対局を振り返る <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></a>
+          <p class="hero-micro">初回1半荘の添削が無料 ／ 予約・通話は不要</p>
+          <a class="hero-secondary" href="#sample" data-cta="sample">どんな添削が届く？<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v13m-5-5 5 5 5-5" stroke="currentColor" stroke-width="1.2"/></svg></a>
+        </div>
+        <figure class="hero-visual" aria-label="麻雀牌と、次の対局のヒントを書いた復習メモのイラスト">
+          <div class="felt" aria-hidden="true">
+            <div class="felt-line"></div>
+            <div class="table-grid"></div>
+            <div class="felt-top"><p><span>打ったあとに、</span><span>ひとつ、わかる。</span></p><div class="lesson-seal"><span>復</span><span>習</span></div></div>
+            <div class="tile-line"><span class="mahjong-tile" role="img" aria-label="二筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p2"/></svg></span><span class="mahjong-tile" role="img" aria-label="三筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p3"/></svg></span><span class="mahjong-tile" role="img" aria-label="四筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p4"/></svg></span><span class="mahjong-tile" role="img" aria-label="八索"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#s8"/></svg></span></div>
+            <svg class="hand-arrow" viewBox="0 0 130 110" fill="none"><path d="M36 10c82 18 83 71-13 80m13-10L20 90l18 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="note-paper">
+              <p class="note-label">今日、持ち帰ること。</p>
+              <p class="note-title">正解だけでなく、<br><span>理由までわかる。</span></p>
+            </div>
+            <div class="felt-bottom"><span>A LITTLE BETTER, ONE GAME AT A TIME.</span><span>01 / 復習</span></div>
+          </div>
+          <figcaption class="hero-caption"><span>いつもの対局に、ちいさな気づきを。</span><span class="en">RIICHI / LEARNING</span></figcaption>
+        </figure>
+      </div>
+      <div class="hero-bottom">
+        <span class="hero-bottom-label">麻雀教室より、ずっと気軽に。</span>
+        <div class="hero-bottom-values">
+          <span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>対局動画を送るだけ</span>
+          <span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>顔出し・通話なし</span>
+          <span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>自分のペースで</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="intro" id="about" aria-labelledby="intro-title">
+    <div class="container">
+      <div class="intro-top">
+        <div class="section-index"><span class="en">01</span>このコーチについて</div>
+        <div class="intro-text">
+          <h2 class="section-heading" id="intro-title">負けた理由より、<br>次にできることを。</h2>
+          <p>「勉強したい。でも、何から直せばいいんだろう。」<br>そんなときに、自分の対局を一緒に振り返るAIコーチです。<br>難しい指標を並べるより、次の一打につながる言葉を届けます。</p>
+        </div>
+      </div>
+      <div class="editorial-values">
+        <div class="editorial-value"><span class="editorial-number">一</span><div><h3>あなたの対局が、教材。</h3><p>一般的な「何切る」ではなく、自分が迷った場面から。いつものプレイの中に、学びを見つけます。</p></div></div>
+        <div class="editorial-value"><span class="editorial-number">二</span><div><h3>答えより、わかる理由。</h3><p>「こちらの牌がおすすめ」で終わらせず、どう考えればよいかを、やさしい言葉で伝えます。</p></div></div>
+        <div class="editorial-value"><span class="editorial-number">三</span><div><h3>一度に、ひとつだけ。</h3><p>全部のミスを直そうとしなくて大丈夫。次の数対局で意識することを、ひとつに絞ります。</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sample-section" id="sample" aria-labelledby="sample-title">
+    <div class="container sample-grid">
+      <div class="sample-intro">
+        <div class="section-index"><span class="en">02</span>届くのは、こんな添削</div>
+        <h2 class="section-heading" id="sample-title">点数だけでは、<br>伝わらないから。</h2>
+        <p>できていることも、見直したいことも。<br>あなたの次の一局に役立つ、<br>小さな「ふりかえりノート」を返します。</p>
+        <div class="sample-tabs" role="tablist" aria-label="添削のサンプル" aria-orientation="vertical">
+          <button class="sample-tab" id="tab-good" role="tab" type="button" aria-selected="false" aria-controls="review-panel" tabindex="-1" data-tab="good"><span class="en">01 / GOOD</span><span>良かったところ</span><svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></button>
+          <button class="sample-tab" id="tab-review" role="tab" type="button" aria-selected="false" aria-controls="review-panel" tabindex="-1" data-tab="review"><span class="en">02 / REVIEW</span><span>見直したいところ</span><svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></button>
+          <button class="sample-tab" id="tab-next" role="tab" type="button" aria-selected="true" aria-controls="review-panel" tabindex="0" data-tab="next"><span class="en">03 / NEXT</span><span>次のテーマ</span><svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></button>
+        </div>
+        <p class="sample-note">項目を選ぶと、添削のイメージが切り替わります。</p>
+      </div>
+      <div class="sample-notebook">
+        <div class="review-sheet" id="review-panel" role="tabpanel" aria-labelledby="tab-next" tabindex="0">
+          <div class="sheet-top"><span class="sheet-brand">対局のふりかえり</span><span class="sample-stamp">見 本</span></div>
+          <div class="sheet-meta"><span>あなたのための、復習ノート。</span><span class="en">NOTE / 001</span></div>
+          <div class="mini-hand" aria-label="麻雀牌の装飾イラスト。特定の局面を再現したものではありません"><span class="mahjong-tile" role="img" aria-label="二筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p2"/></svg></span><span class="mahjong-tile" role="img" aria-label="三筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p3"/></svg></span><span class="mahjong-tile" role="img" aria-label="四筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p4"/></svg></span><span class="mahjong-tile" role="img" aria-label="五筒"><svg viewBox="0 0 60 90" aria-hidden="true"><use href="#p5"/></svg></span></div>
+          <div class="sheet-content" aria-live="polite" aria-atomic="true">
+            <p class="sheet-topic" id="sheet-topic">次の3半荘で、意識すること。</p>
+            <h3 id="sheet-title">相手のリーチに、<br>まず、ひと呼吸。</h3>
+            <p class="sheet-body" id="sheet-body">相手がリーチしたら、いつもの勢いで切る前に一度立ち止まってみましょう。「攻めるか、守るか」を考える時間をつくる。次の対局では、まずそれだけを意識してみてください。</p>
+          </div>
+          <div class="sheet-takeaway"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span id="sheet-takeaway">一度に全部、直さなくて大丈夫です。</span></div>
+        </div>
+        <p class="sample-caption">説明用のサンプルです。実際の対局・解析結果ではありません。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how" aria-labelledby="how-title">
+    <div class="container">
+      <div class="how-top">
+        <div><div class="section-index"><span class="en">03</span>はじめ方</div><h2 class="section-heading" id="how-title">いつもの対局を、<br>学びに変える。</h2></div>
+        <p class="how-note">教室を予約したり、顔を出して話したり。<br>そんな準備はいりません。<br>いつもの場所で、いつもの麻雀を。</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-top"><span class="step-num">01</span><svg class="step-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true"><rect x="8" y="3" width="20" height="30" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M14 6h8m-7 23h6" stroke="currentColor" stroke-width="1.2"/><circle cx="18" cy="17" r="5" stroke="currentColor" stroke-width="1.2"/><circle cx="18" cy="17" r="2.5" fill="currentColor"/></svg></div>
+          <div><h3>いつも通り、打つ。</h3><p>普段のオンライン麻雀で対局し、画面録画を保存します。まずは1半荘から。</p></div>
+        </div>
+        <div class="step">
+          <div class="step-top"><span class="step-num">02</span><svg class="step-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M6 22v9h24v-9M18 24V5m-7 7 7-7 7 7" stroke="currentColor" stroke-width="1.2"/><path d="M11 31h14" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          <div><h3>対局動画を、送る。</h3><p>ご案内する専用フォームから送付。気になった場面があれば、一緒に教えてください。</p></div>
+        </div>
+        <div class="step">
+          <div class="step-top"><span class="step-num">03</span><svg class="step-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M7 3h22v30H7zM12 10h12m-12 6h12m-12 6h6" stroke="currentColor" stroke-width="1.2"/><path d="m22 27 2 2 5-5" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          <div><h3>ひとつ学んで、また打つ。</h3><p>届いた添削を読んだら、次の対局へ。小さな気づきを、少しずつ積み重ねていきましょう。</p></div>
+        </div>
+      </div>
+      <p class="how-foot">β版ではオンラインの日本式リーチ麻雀を対象に検証します。対応アプリ・録画方法・送付手順は、お申し込み後にご案内します。</p>
+    </div>
+  </section>
+
+  <section class="beta" id="beta" aria-labelledby="beta-title">
+    <div class="container beta-grid">
+      <div class="beta-intro">
+        <div class="section-index"><span class="en">04</span>無料βテスト</div>
+        <h2 class="section-heading" id="beta-title">さあ、一局ぶんの<br>「なるほど」を。</h2>
+        <p>基本のルールはわかるけれど、<br>自分の打ち方には、まだ自信がない。<br>そんな方と、一緒に育てていきたいサービスです。</p>
+        <p>まずは無料β版で、1半荘を振り返ってみませんか。<br>使ってみた感想を、ぜひ聞かせてください。</p>
+        <div class="price"><span class="price-label">β版・初回1半荘の添削</span><span class="price-value">0<span class="price-yen">円</span></span></div>
+        <p class="beta-detail">クレジットカードの登録は不要です。<br>無料β版への参加だけで、自動的に課金されることはありません。</p>
+      </div>
+      <form class="beta-form" id="betaForm" novalidate>
+        <div class="form-header"><h3>無料β版に申し込む</h3><span class="en">JOIN THE BETA</span></div>
+        <div class="field">
+          <label for="email">メールアドレス<span class="field-status">必須</span></label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required maxlength="254" aria-describedby="form-after"/>
+        </div>
+        <div class="field">
+          <label for="platform">普段遊んでいる麻雀アプリ<span class="field-status">必須</span></label>
+          <select id="platform" name="platform" required>
+            <option value="">選択してください</option><option value="mahjong-soul">雀魂</option><option value="mj">MJ</option><option value="tenhou">天鳳</option><option value="riichi-city">麻雀一番街</option><option value="other">その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rank">今の段位・レベル<span class="field-status optional">任意</span></label>
+          <input id="rank" name="rank" type="text" placeholder="例：雀傑1、始めて3か月" maxlength="80"/>
+        </div>
+        <div class="honeypot" aria-hidden="true"><label for="company">Company</label><input id="company" name="company" type="text" tabindex="-1" autocomplete="off"/></div>
+        <div class="form-consent">
+          <input id="consent" name="consent" type="checkbox" required/>
+          <label for="consent"><a href="#legal-preview" class="text-link" data-legal="privacy">プライバシーポリシー</a>・<a href="#legal-preview" class="text-link" data-legal="terms">利用規約</a>を確認し、βテストの案内と連絡のための情報利用に同意します。</label>
+        </div>
+        <button class="button" id="submit-button" type="submit"><span id="submit-label">無料β版に申し込む</span><svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></button>
+        <p class="form-after" id="form-after">参加方法をメールでご案内します。動画の送付は、そのあとで。</p>
+        <p class="preview-note" id="preview-note">デザインプレビュー：送信先・規約は未設定です。<br>このフォームから個人情報は送信されません。</p>
+        <div class="form-status" id="form-status" role="status" aria-live="polite" hidden></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="faq-section" id="faq" aria-labelledby="faq-title">
+    <div class="container faq-grid">
+      <div><div class="section-index"><span class="en">05</span>気になること</div><h2 class="faq-heading" id="faq-title">よくあるご質問。</h2></div>
+      <div class="faq-list">
+        <details class="faq-item"><summary><span class="faq-q">Q.</span>どのくらいのレベルの人に向いていますか？</summary><p>基本的なルールや役がわかり、すでにオンラインで麻雀を楽しんでいる初・中級者を想定しています。「もっと上達したいけれど、自分の何を直せばよいかわからない」という方に使っていただきたいサービスです。</p></details>
+        <details class="faq-item"><summary><span class="faq-q">Q.</span>雀魂以外のアプリでも使えますか？</summary><p>特定のアプリに限定しない、オンラインの日本式リーチ麻雀の学習サービスを目指しています。ただしβ版では、動画の読み取りや対応範囲を順次検証します。お使いのアプリをフォームでお知らせください。対応可否を含めてご案内します。</p></details>
+        <details class="faq-item"><summary><span class="faq-q">Q.</span>AIの添削は、必ず正しいですか？</summary><p>いいえ。AIの評価や解説は、唯一の正解や上達を保証するものではありません。β版では、運営者が結果を確認・補足する場合もあります。わかりづらい点や気になる判断も、ぜひフィードバックしてください。</p></details>
+        <details class="faq-item"><summary><span class="faq-q">Q.</span>動画や個人情報は、どう扱われますか？</summary><p>動画の保存期間・外部AIの利用・学習利用の有無などは、正式なプライバシーポリシーと送付時の案内でお知らせします。現在のデザインプレビューでは、入力情報や動画の収集は行いません。運用方針と送信先の設定が完了してから受付を開始します。</p></details>
+        <details class="faq-item"><summary><span class="faq-q">Q.</span>無料で試したあと、料金がかかりますか？</summary><p>無料β版の初回添削には料金はかかりません。クレジットカードの登録も不要です。将来有料プランを設ける場合も、無料β版への参加だけで自動的に契約・課金されることはありません。</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div><a href="#top" aria-label="AI麻雀コーチ トップ"><span class="brand"><svg class="brand-symbol" viewBox="0 0 32 44" fill="none" aria-hidden="true"><rect x="1" y="1" width="29" height="38" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 35h28v5a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="currentColor"/><path d="M8 23h15" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="13" r="3" fill="#b74630"/></svg><span class="brand-name">AI麻雀コーチ</span><span class="brand-beta">β</span></span></a><p class="footer-message">打ったあとに、ひとつ、わかる。</p></div>
+      <div class="footer-links"><a href="#legal-preview" data-legal="privacy">プライバシーポリシー</a><a href="#legal-preview" data-legal="terms">利用規約</a><a href="#legal-preview" data-legal="contact">お問い合わせ</a></div>
+    </div>
+    <div class="footer-bottom"><p>本サービスは、特定の麻雀アプリ運営会社と提携・協賛するものではありません。記載のゲーム名は各権利者に帰属します。</p><span class="en">© 2026 AI MAHJONG COACH</span></div>
+  </div>
+</footer>
+<div class="mobile-cta" id="mobile-cta" aria-hidden="true" inert><span>初回1半荘<br><strong>無料で添削</strong></span><a class="button" href="#beta" data-cta="mobile">無料β版を試す <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg></a></div>
+<dialog id="legal-preview" aria-labelledby="legal-title"><h2 id="legal-title">公開準備中です</h2><p id="legal-message">このページはデザインプレビューです。正式な規約とプライバシーポリシーの公開、送信先の設定が完了するまで、お申し込みや個人情報の送信は行われません。</p><button class="dialog-close" type="button" id="close-dialog">閉じる</button></dialog>
+
+<script>
+/*
+ * Before public use:
+ * 1. Configure a production HTTPS form endpoint and approved privacy/terms URLs.
+ * 2. Review all beta promises and data-handling copy against actual operations.
+ * 3. Add analytics only after checking applicable consent requirements.
+ * No external analytics, cookies, localStorage, or submissions run by default.
+ * A successful signup is NOT a submitted-game conversion.
+ */
+window.LP_CONFIG = Object.assign({
+  formEndpoint: "",
+  privacyUrl: "",
+  termsUrl: "",
+  contactEmail: "",
+  policyVersion: "REPLACE-BEFORE-LAUNCH",
+  campaignLabel: "jp-beta-design-v2"
+}, window.LP_CONFIG || {});
+
+(() => {
+  "use strict";
+  const config = window.LP_CONFIG;
+  const params = new URLSearchParams(window.location.search);
+  const variants = {
+    default: ["その一打に、", "「なるほど」を。"],
+    improve: ["次の一打を、", "自信の一打に。"],
+    stuck: ["勝てない日にも、", "学びはある。"],
+    review: ["解析のあとに、", "「なるほど」を。"]
+  };
+  const requestedIntent = params.get("intent") || "default";
+  const intent = Object.hasOwn(variants, requestedIntent) ? requestedIntent : "default";
+  document.querySelector("#headline-first").textContent = variants[intent][0];
+  document.querySelector("#headline-second").textContent = variants[intent][1];
+  document.querySelectorAll(".sample-tabs").forEach(el => {
+    el.setAttribute("aria-orientation", matchMedia("(max-width: 680px)").matches ? "horizontal" : "vertical");
+  });
+
+  // Contains no input values, account names, emails, video contents, or URL query strings.
+  // This is an in-memory queue, not a network analytics integration.
+  window.dataLayer = window.dataLayer || [];
+  function track(name, details = {}) {
+    window.dataLayer.push(Object.assign({
+      event: name,
+      lp_version: "editorial-v2",
+      lp_intent: intent,
+      campaign_label: config.campaignLabel
+    }, details));
+  }
+  track("lp_view");
+
+  document.querySelectorAll("[data-cta]").forEach(link => {
+    link.addEventListener("click", () => track("cta_click", { cta_location: link.dataset.cta }));
+  });
+
+  const samples = {
+    good: {
+      topic: "この判断は、そのまま大切に。",
+      title: ["勢いで切らずに、", "一度、考えられた。"],
+      body: "迷う場面で、すぐに牌を切らずに手を止められていました。自分の手だけでなく、相手の動きにも目を向ける。その習慣は、これからも大切にしていきましょう。",
+      takeaway: "できていたことにも、きちんと目を向けます。"
+    },
+    review: {
+      topic: "今回、見直してみたいこと。",
+      title: ["「なんとなく」で、", "押していませんか。"],
+      body: "相手のリーチ後も、攻め続けた場面がありました。自分の手はどこまで進んでいたか、何を根拠に押したのか。結果だけでなく、判断の過程を一緒に振り返ります。",
+      takeaway: "勝ち負けだけでは見えない、考え方を整理します。"
+    },
+    next: {
+      topic: "次の3半荘で、意識すること。",
+      title: ["相手のリーチに、", "まず、ひと呼吸。"],
+      body: "相手がリーチしたら、いつもの勢いで切る前に一度立ち止まってみましょう。「攻めるか、守るか」を考える時間をつくる。次の対局では、まずそれだけを意識してみてください。",
+      takeaway: "一度に全部、直さなくて大丈夫です。"
+    }
+  };
+  const tabs = Array.from(document.querySelectorAll("[data-tab]"));
+  function selectSample(key, record = true) {
+    const sample = samples[key];
+    if (!sample) return;
+    tabs.forEach(tab => {
+      const selected = tab.dataset.tab === key;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    document.querySelector("#review-panel").setAttribute("aria-labelledby", "tab-" + key);
+    document.querySelector("#sheet-topic").textContent = sample.topic;
+    const title = document.querySelector("#sheet-title");
+    title.replaceChildren(document.createTextNode(sample.title[0]), document.createElement("br"), document.createTextNode(sample.title[1]));
+    document.querySelector("#sheet-body").textContent = sample.body;
+    document.querySelector("#sheet-takeaway").textContent = sample.takeaway;
+    if (record) track("sample_tab_change", { sample_type: key });
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => selectSample(tab.dataset.tab));
+    tab.addEventListener("keydown", event => {
+      let target;
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") target = (index + 1) % tabs.length;
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") target = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === "Home") target = 0;
+      if (event.key === "End") target = tabs.length - 1;
+      if (target !== undefined) {
+        event.preventDefault();
+        tabs[target].focus();
+        selectSample(tabs[target].dataset.tab);
+      }
+    });
+  });
+
+  const modal = document.querySelector("#legal-preview");
+  function isHttps(value) {
+    try { return new URL(value).protocol === "https:"; } catch { return false; }
+  }
+  const legalReady = isHttps(config.privacyUrl) && isHttps(config.termsUrl);
+  const formReady = isHttps(config.formEndpoint) && legalReady && config.policyVersion !== "REPLACE-BEFORE-LAUNCH";
+  document.querySelector("#preview-note").hidden = formReady;
+  document.querySelectorAll("[data-legal]").forEach(link => {
+    const key = link.dataset.legal;
+    const url = key === "privacy" ? config.privacyUrl : key === "terms" ? config.termsUrl : "";
+    if (isHttps(url)) {
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    } else if (key === "contact" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.contactEmail)) {
+      link.href = "mailto:" + config.contactEmail;
+    } else {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        document.querySelector("#legal-title").textContent = key === "privacy" ? "プライバシーポリシーは準備中です" : key === "terms" ? "利用規約は準備中です" : "お問い合わせ先は準備中です";
+        if (typeof modal.showModal === "function") modal.showModal();
+        else window.alert(document.querySelector("#legal-message").textContent);
+      });
+    }
+  });
+  document.querySelector("#close-dialog").addEventListener("click", () => modal.close());
+  modal.addEventListener("click", event => {
+    const bounds = modal.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) modal.close();
+  });
+
+  const form = document.querySelector("#betaForm");
+  const status = document.querySelector("#form-status");
+  const button = document.querySelector("#submit-button");
+  let started = false;
+  let submitted = false;
+  form.addEventListener("focusin", event => {
+    if (!started && /^(INPUT|SELECT)$/.test(event.target.tagName)) {
+      started = true;
+      track("form_start");
+    }
+  });
+  function showStatus(message, success = false) {
+    status.hidden = false;
+    status.textContent = message;
+    status.classList.toggle("is-success", success);
+  }
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (submitted || button.disabled) return;
+    if (!formReady) {
+      showStatus("現在はデザインプレビューです。送信先と正式な規約が未設定のため、入力内容は送信されていません。");
+      track("preview_submit_attempt");
+      return;
+    }
+    if (!form.reportValidity()) return;
+    const fields = new FormData(form);
+    if (fields.get("company")) return;
+    const payload = {
+      email: String(fields.get("email") || "").trim(),
+      platform: String(fields.get("platform") || ""),
+      rank: String(fields.get("rank") || "").trim(),
+      consent: fields.get("consent") === "on",
+      consent_version: config.policyVersion,
+      lp_intent: intent,
+      lp_version: "editorial-v2",
+      campaign_label: config.campaignLabel
+    };
+    button.disabled = true;
+    document.querySelector("#submit-label").textContent = "送信しています…";
+    status.hidden = true;
+    const aborter = new AbortController();
+    const timeout = window.setTimeout(() => aborter.abort(), 15000);
+    try {
+      // Expected API response: HTTP 2xx, JSON { "ok": true } or { "success": true }.
+      // Configure CORS, server-side validation, spam prevention and access controls.
+      const result = await fetch(config.formEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload),
+        signal: aborter.signal
+      });
+      let data = null;
+      try { data = await result.json(); } catch { /* Do not count an unverified success. */ }
+      if (!result.ok || !data || !(data.ok === true || data.success === true)) throw new Error("Unconfirmed submission");
+      submitted = true;
+      showStatus("お申し込みを受け付けました。参加方法のご案内をメールでお送りします。", true);
+      document.querySelector("#submit-label").textContent = "お申し込み済み";
+      track("beta_signup");
+      form.querySelectorAll("input,select").forEach(el => { el.disabled = true; });
+    } catch (error) {
+      showStatus(error.name === "AbortError" ? "送信を確認できませんでした。お手数ですが、通信環境をご確認のうえ、もう一度お試しください。" : "送信が完了しませんでした。少し時間をおいて、もう一度お試しください。");
+      button.disabled = false;
+      document.querySelector("#submit-label").textContent = "無料β版に申し込む";
+      track("form_error", { reason: error.name === "AbortError" ? "timeout" : "unconfirmed" });
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  });
+
+  if ("IntersectionObserver" in window) {
+    let heroVisible = true;
+    let betaVisible = false;
+    const mobile = document.querySelector("#mobile-cta");
+    const syncMobile = () => {
+      const show = !heroVisible && !betaVisible && !submitted;
+      mobile.classList.toggle("is-visible", show);
+      mobile.setAttribute("aria-hidden", String(!show));
+      mobile.inert = !show;
+    };
+    const heroObserver = new IntersectionObserver(entries => {
+      heroVisible = entries[0].isIntersecting;
+      syncMobile();
+    }, { threshold: 0 });
+    heroObserver.observe(document.querySelector("#hero-cta"));
+    const betaObserver = new IntersectionObserver(entries => {
+      betaVisible = entries[0].isIntersecting;
+      syncMobile();
+    }, { threshold: 0 });
+    betaObserver.observe(document.querySelector("#beta"));
+    let sampleTracked = false;
+    const sampleObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !sampleTracked) {
+        sampleTracked = true;
+        track("sample_view");
+      }
+    }, { threshold: .25 });
+    sampleObserver.observe(document.querySelector("#sample"));
+  }
+})();
+</script>
+</body>
+</html>
